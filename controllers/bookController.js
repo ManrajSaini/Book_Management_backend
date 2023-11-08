@@ -9,7 +9,7 @@ const addNewBook = async (req,res) => {
     if(!bookTitle || !bookAuthor || !bookSummary){
         return res.send({
             "success": false,
-            "error_code": 200,
+            "error_code": 400,
             "message": "Add book title, author and summary",
             "data": null
         });
@@ -24,7 +24,7 @@ const addNewBook = async (req,res) => {
         if(alreadyExists){
             return res.send({
                 "success": false,
-                "error_code": 200,
+                "error_code": 400,
                 "message": "Book already exists, cannot create again!",
                 "data": null
             });
@@ -38,7 +38,7 @@ const addNewBook = async (req,res) => {
         if(isbnExists){
             return res.send({
                 "success": false,
-                "error_code": 200,
+                "error_code": 400,
                 "message": "ISBN already exists for some other book, try creating again",
                 "data": null
             });
@@ -71,11 +71,143 @@ const addNewBook = async (req,res) => {
 };
 
 const getAllBooks = async (req,res) => {
+    try{
+        const allBooks = await Book.find();
 
+        if(allBooks.length === 0){
+            return res.send({
+                "success": false,
+                "error_code": 400,
+                "message": "No books found, add some books first",
+                "data": []
+            });
+        }
+
+        return res.send({
+            "success": true,
+            "error_code": null,
+            "message": "Successfully fetched all Books",
+            "data": allBooks
+        });
+
+    } catch(err){
+        return res.send({
+            "success": false,
+            "error_code": 500,
+            "message": err.message,
+            "data": null
+        });
+    }
 };
 
-const getSingleBook = async (req,res) => {
+const getBookByDetails = async (req,res) => {
+    const bookTitle = req.body.title || null;
+    const bookAuthor = req.body.author || null;
 
+    const bookISBN = req.body.ISBN || null;
+
+    try {
+        if(!bookISBN){
+            if(!bookTitle || !bookAuthor){
+                return res.send({
+                    "success": false,
+                    "error_code": 400,
+                    "message": "Unable to fetch, Either give Book ISBN or Book author & title",
+                    "data": null
+                });
+            }
+
+            const singleBook = await Book.findOne({
+                title: bookTitle,
+                author: bookAuthor
+            });
+
+            if(!singleBook){
+                return res.send({
+                    "success": false,
+                    "error_code": 400,
+                    "message": "Book Does not exist",
+                    "data": null
+                });
+            }
+
+            return res.send({
+                "success": true,
+                "error_code": 200,
+                "message": "Successfully fetched the book by title & author",
+                "data": singleBook
+            });
+        }
+
+        if(bookISBN.length !== 13){
+            return res.send({
+                "success": false,
+                "error_code": 400,
+                "message": "Invalid ISBN, ISBN should be of 13 digits and start with 978..",
+                "data": null
+            });
+        }
+
+        const singleBook = await Book.findOne({
+            ISBN: bookISBN
+        });
+
+        if(!singleBook){
+            return res.send({
+                "success": false,
+                "error_code": 400,
+                "message": "Book Does not exist",
+                "data": null
+            });
+        }
+
+        return res.send({
+            "success": true,
+            "error_code": 200,
+            "message": "Successfully fetched the book by ISBN",
+            "data": singleBook
+        });
+
+    } catch (err) {
+        return res.send({
+            "success": false,
+            "error_code": 500,
+            "message": err.message,
+            "data": null
+        });
+    }
+};
+
+const getBookById = async (req,res) => {
+    const bookId = req.params.id;
+
+    try {
+        const singleBook = await Book.findById(bookId);
+
+        if(!singleBook){
+            return res.send({
+                "success": false,
+                "error_code": 400,
+                "message": "Book does not Exist, Inalid Book Id",
+                "data": null
+            });
+        }
+
+        return res.send({
+            "success": true,
+            "error_code": 200,
+            "message": "Successfully fetched the book by Id",
+            "data": singleBook
+        });
+
+    } catch (err) {
+        return res.send({
+            "success": false,
+            "error_code": 500,
+            "message": err.message,
+            "data": null
+        });
+    }
 };
 
 const updateBook = async (req,res) => {
@@ -83,13 +215,14 @@ const updateBook = async (req,res) => {
 };
 
 const deleteBook = async (req,res) => {
-
+    const bookId = req.params.id;
 };
 
 
 module.exports = {
     getAllBooks,
-    getSingleBook,
+    getBookByDetails,
+    getBookById,
     addNewBook,
     updateBook,
     deleteBook
