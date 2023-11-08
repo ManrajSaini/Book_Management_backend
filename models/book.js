@@ -12,6 +12,10 @@ const bookSchema = new mongoose.Schema({
     summary: {
         type: String,
         required: true
+    },
+    ISBN: {
+        type: String,
+        unique: true
     }
 });
 
