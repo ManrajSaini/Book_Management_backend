@@ -12,6 +12,8 @@ bookRouter.post("/add-book", bookController.addNewBook);
 
 // bookRouter.patch("/update-book", bookController.updateBook);
 
-// bookRouter.delete("/delete-book", bookController.deleteBook);
+bookRouter.delete("/delete-book", bookController.deleteBookByDetails);
+bookRouter.delete("/delete-book/:id", bookController.deleteBookById);
+
 
 module.exports = bookRouter;
