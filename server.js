@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 
 const connectDB = require("./config/connectDB");
+const bookRouter = require("./routes/bookRoutes");
 
 dotenv.config();
 
@@ -15,6 +16,8 @@ app.use(cors({
 }));
 
 connectDB();
+
+app.use("/api", bookRouter);
 
 app.get("/", (req,res) => {
     return res.send({
