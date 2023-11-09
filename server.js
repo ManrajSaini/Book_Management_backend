@@ -15,10 +15,13 @@ app.use(cors({
     credentials: true
 }));
 
+// Connecting to mongo database
 connectDB();
 
+// book routes (router)
 app.use("/api", bookRouter);
 
+// Home Route
 app.get("/", (req,res) => {
     return res.send({
         "success": true,
@@ -28,6 +31,7 @@ app.get("/", (req,res) => {
     });
 });
 
+// Server started on Port 8080
 app.listen(process.env.PORT, () => {
     console.log("Server is running, Hurray!!");
 });

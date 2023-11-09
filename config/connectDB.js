@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 
 dotenv.config();
 
+// Connecting to Mongo Database
 const connectDB = async () => {
     try {
         await mongoose.connect(process.env.MONGODB_URL);

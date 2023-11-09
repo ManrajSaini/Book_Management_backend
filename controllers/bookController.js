@@ -1,6 +1,7 @@
 const Book = require("../models/book");
 const generateISBN = require("../utils/isbnGenerator");
 
+// Add a new book to database
 const addNewBook = async (req,res) => {
     const bookTitle = req.body.title;
     const bookAuthor = req.body.author;
@@ -70,6 +71,7 @@ const addNewBook = async (req,res) => {
     }
 };
 
+// Fetch all books
 const getAllBooks = async (req,res) => {
     try{
         const allBooks = await Book.find();
@@ -100,6 +102,7 @@ const getAllBooks = async (req,res) => {
     }
 };
 
+// Fetch a book by (Author & title) or ISBN
 const getBookByDetails = async (req,res) => {
     const bookTitle = req.body.title || null;
     const bookAuthor = req.body.author || null;
@@ -178,6 +181,7 @@ const getBookByDetails = async (req,res) => {
     }
 };
 
+// Fetch a book by Id
 const getBookById = async (req,res) => {
     const bookId = req.params.id;
 
@@ -210,6 +214,7 @@ const getBookById = async (req,res) => {
     }
 };
 
+// Update book details by Id
 const updateBookById = async (req,res) => {
     const bookId = req.params.id;
 
@@ -372,6 +377,7 @@ const updateBookById = async (req,res) => {
     }
 };
 
+// Delete a book by (Author & Title) or ISBN
 const deleteBookByDetails = async (req,res) => {
     const bookTitle = req.body.title || null;
     const bookAuthor = req.body.author || null;
@@ -454,6 +460,7 @@ const deleteBookByDetails = async (req,res) => {
     }
 };
 
+// Delete book by Id
 const deleteBookById = async (req,res) => {
     const bookId = req.params.id;
 
