@@ -10,7 +10,7 @@ bookRouter.get("/get-book/:id", bookController.getBookById);
 
 bookRouter.post("/add-book", bookController.addNewBook);
 
-// bookRouter.patch("/update-book", bookController.updateBook);
+bookRouter.patch("/update-book/:id", bookController.updateBookById);
 
 bookRouter.delete("/delete-book", bookController.deleteBookByDetails);
 bookRouter.delete("/delete-book/:id", bookController.deleteBookById);

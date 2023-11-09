@@ -210,8 +210,166 @@ const getBookById = async (req,res) => {
     }
 };
 
-const updateBook = async (req,res) => {
+const updateBookById = async (req,res) => {
+    const bookId = req.params.id;
 
+    try {
+        const toUpdateBook = await Book.findById(bookId);
+
+        if(!toUpdateBook){
+            return res.send({
+                "success": false,
+                "error_code": 400,
+                "message": "Book to update does not exist",
+                "data": null
+            });
+        }
+
+        const updatedTitle = req.body.title || null;
+        const updatedAuthor = req.body.author || null;
+
+        const updatedSummary = req.body.summary || toUpdateBook.summary;
+
+        if(!updatedTitle && !updatedAuthor && (updatedSummary === toUpdateBook.summary)){
+            return res.send({
+                "success": true,
+                "error_code": 200,
+                "message": "Nothing provided to update, so book details remain same",
+                "data": toUpdateBook
+            });
+        }
+
+        if(updatedTitle && updatedAuthor && updatedSummary){
+            const nothingUpdated = await Book.findOne({
+                title: updatedTitle,
+                author: updatedAuthor,
+                summary: updatedSummary
+            });
+
+
+            if(nothingUpdated){
+                return res.send({
+                    "success": true,
+                    "error_code": 200,
+                    "message": "Nothing to update, every detail is same",
+                    "data": nothingUpdated
+                });
+            }
+        }
+
+        if(updatedTitle){
+            if(updatedAuthor){
+                const alreadyExists = await Book.findOne({
+                    title: updatedTitle,
+                    author: updatedAuthor
+                });
+
+                if(alreadyExists){
+                    return res.send({
+                        "success": false,
+                        "error_code": 400,
+                        "message": "Given updated details already exists, cannot duplicate them",
+                        "data": null
+                    });
+                }
+
+                toUpdateBook.title = updatedTitle;
+                toUpdateBook.author = updatedAuthor;
+                toUpdateBook.summary = updatedSummary;
+
+                await toUpdateBook.save();
+
+                return res.send({
+                    "success": true,
+                    "error_code": 200,
+                    "message": "Book details updated successfully",
+                    "data": toUpdateBook
+                });
+            }
+
+            const allBooksByAuthor = await Book.find({
+                author: toUpdateBook.author
+            });
+
+            allBooksByAuthor.map((book) => {
+                if(book.title === updatedTitle){
+                    return res.send({
+                        "success": false,
+                        "error_code": 400,
+                        "message": "Title to updated already exists for this author",
+                        "data": null
+                    });
+                }
+            });
+
+            toUpdateBook.title = updatedTitle;
+            toUpdateBook.author = toUpdateBook.author;
+            toUpdateBook.summary = updatedSummary;
+
+            await toUpdateBook.save();
+
+            return res.send({
+                "success": true,
+                "error_code": 200,
+                "message": "Book details updated successfully",
+                "data": toUpdateBook
+            });
+        }
+
+        else{
+            if(updatedAuthor){
+                
+                const allBooksByTitle = await Book.find({
+                    title: toUpdateBook.title
+                });
+
+                allBooksByTitle.map((book) => {
+                    if(book.author === updatedAuthor){
+                        return res.send({
+                            "success": false,
+                            "error_code": 400,
+                            "message": "Author to updated already exists for this Title",
+                            "data": null
+                        });
+                    }
+                });
+
+                toUpdateBook.title = toUpdateBook.title;
+                toUpdateBook.author = updatedAuthor;
+                toUpdateBook.summary = updatedSummary;
+
+                await toUpdateBook.save();
+
+                return res.send({
+                    "success": true,
+                    "error_code": 200,
+                    "message": "Book details updated successfully",
+                    "data": toUpdateBook
+                });
+            }
+
+            toUpdateBook.title = toUpdateBook.title;
+            toUpdateBook.author = toUpdateBook.author;
+            toUpdateBook.summary = updatedSummary;
+
+            await toUpdateBook.save();
+
+            return res.send({
+                "success": true,
+                "error_code": 200,
+                "message": "Book details updated successfully",
+                "data": toUpdateBook
+            });
+        }
+
+    } catch (err) {
+        return res.send({
+            "success": false,
+            "error_code": 500,
+            "message": err.message,
+            "data": null
+        });
+    }
 };
 
 const deleteBookByDetails = async (req,res) => {
@@ -332,11 +490,11 @@ const deleteBookById = async (req,res) => {
 
 
 module.exports = {
-    getAllBooks,
-    getBookByDetails,
-    getBookById,
     addNewBook,
-    updateBook,
+    getAllBooks,
+    getBookById,
+    getBookByDetails,
+    updateBookById,
     deleteBookById,
     deleteBookByDetails
 }
